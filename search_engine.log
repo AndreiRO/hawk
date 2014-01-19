@@ -1,0 +1,22 @@
+2014-01-19 15:17:53,499 INFO:127.0.0.1 - - [19/Jan/2014 15:17:53] "GET / HTTP/1.1" 200 -.
+
+2014-01-19 15:17:53,569 INFO:127.0.0.1 - - [19/Jan/2014 15:17:53] "GET /static/uliu.jpg HTTP/1.1" 200 -.
+
+2014-01-19 15:18:00,315 INFO:127.0.0.1 - - [19/Jan/2014 15:18:00] "POST /do-search HTTP/1.1" 302 -.
+
+2014-01-19 15:18:00,511 ERROR:Error: 'instancemethod' object is not iterable while searchcing for: [u'linux'].
+
+2014-01-19 15:18:00,613 INFO:127.0.0.1 - - [19/Jan/2014 15:18:00] "GET /results_page HTTP/1.1" 200 -.
+
+2014-01-19 15:18:23,779 INFO:127.0.0.1 - - [19/Jan/2014 15:18:23] "POST /do-search HTTP/1.1" 302 -.
+
+2014-01-19 15:18:24,072 ERROR:Error: 'instancemethod' object is not iterable while searchcing for: [u'py4school'].
+
+2014-01-19 15:18:24,212 INFO:127.0.0.1 - - [19/Jan/2014 15:18:24] "GET /results_page HTTP/1.1" 200 -.
+
+2014-01-19 15:18:53,309 INFO:127.0.0.1 - - [19/Jan/2014 15:18:53] "POST /do-search HTTP/1.1" 302 -.
+
+2014-01-19 15:18:53,638 ERROR:Error: 'instancemethod' object is not iterable while searchcing for: [u'py4school'].
+
+2014-01-19 15:18:53,775 INFO:127.0.0.1 - - [19/Jan/2014 15:18:53] "GET /results_page HTTP/1.1" 200 -.
+
