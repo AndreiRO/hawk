@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+	<form action="/do-search" method="post" accept-charset="utf-8">
+		<input type="text" name="words" />
+		<input type="submit" value="Caută &rarr;" />
+	</form>
+
+{% endblock %}	

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}	
+
+	{% for link in links  %}
+
+	<p id="id" >
+ 		Link: <a href="{{ link }}" target="_blank" > {{ link }}  </a> 
+ 	</p>
+	{% else %}
+	<p >
+		Nu am găsit nimic...
+	</p>
+	
+ 	{% endfor %}
+
+{% endblock %}
