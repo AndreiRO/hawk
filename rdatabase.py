@@ -58,9 +58,15 @@ class Database(object):
 				if cursor is not None:
 					cursor.close()
 				
-	def search(self, words, limit = 20):
+	def search(self, words, _from = 0, _to = 15):
 		if words is None or len(words) == 0:
 			raise DatabaseError('Not enough information to search: words: %s' % (str(words)))
+		if _from < 0:
+			_from = 0
+		if _to < 0:
+			_to = 15
+
+
 		sites = []
 		cursor = None
 		
@@ -69,36 +75,34 @@ class Database(object):
 		try:
 
 			cursor = self.connection.cursor(cursor_factory = DictCursor)
-		
 			# first select sites whose link contains the word
 			for word in words:
 				try:
-					cursor.execute("""select link from sites where link ~* %(word)s""", {'word':'\w*'+word+'\w*'})
-					rows = cursor.fetchall
+					cursor.execute("""select link from sites where link ~* %(word)s order by rank desc limit %(limit)s""", {'word':word, 'limit':_to})
+					rows = cursor.fetchall()
+					rows = rows[_from:_to]
 					for row in rows:
 						sites.extend([row['link']])
 				except Exception as e:
-					logging.error('Error: %s while searchcing for: %s' %(str(e), str(words)))
+					logging.error('Error1: %s while searchcing for: %s' %(str(e), str(words)))
 
-			# second select those whose title contains the word
-			for word in words:
 				try:
-					cursor.execute("""select link from sites where title ~* %(title)s""", {'title':'\w*'+word+'\w*'})
+					cursor.execute("""select link from sites where title ~* %(title)s order by rank desc limit %(limit)s""", {'title':word, 'limit':_to})
 					rows = cursor.fetchall()
+					rows = rows[_from:_to]
 					for row in rows:
 						sites.extend([row['link']])		
 				except Exception as e: 
-					logging.error('Error: %s while searchcing for: %s' %(str(e), str(words)))
+					logging.error('Error2: %s while searchcing for: %s' %(str(e), str(words)))
 			
-			# third select words
-			for word in words:
 				try:
-					cursor.execute("""select sites.link from sites where id in (select site_id from contents where word_id = (select id from words where text = %(word)s))""", {'word':word})
+					cursor.execute("""select sites.link from sites where id in (select site_id from contents where word_id = (select id from words where text = %(word)s)) order by rank desc limit %(limit)s""", {'word':word, 'limit':_to})
 					rows = cursor.fetchall()
+					rows = rows[_from:_to]
 					for row in rows:
 						sites.extend([row['link']])
 				except Exception as e:
-					logging.error('Error: %s while searchcing for: %s' %(str(e), str(words)))
+					logging.error('Error3: %s while searchcing for: %s' %(str(e), str(words)))
 
 			
 		except Exception as e:
@@ -108,8 +112,23 @@ class Database(object):
 				cursor.close()
 			
 			self.remove_duplicates(sites)
-			return sites[:limit] if limit > 0 else sites
+			
+			return sites[_from:_to]
+
 	
+	def suggest_spelling(self, fragment):
+		cursor = self.connection.cursor(cursor_factory = DictCursor)
+
+		try:
+			cursor.execute(""" select text from words where text ~ %(fragment)s limit 5""", {'fragment':'^'+fragment})
+			words = cursor.fetchall()
+			results = map(lambda x: x['text'], words)
+			return results
+		except Exception as e:
+			logging.error("Error: %s while getting suggestions for: %s" %(str(e), fragment))
+		finally:
+			if cursor is not None:
+				cursor.close()
 
 	def remove_duplicates(self,l):
 		return [ x for idx, x in enumerate(l) if idx == l.index(x) ]	

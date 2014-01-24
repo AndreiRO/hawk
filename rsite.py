@@ -35,8 +35,8 @@ class Site(object):
 	#DESCRIPTION_REGEX = re.compile('(<meta\s*name="[Dd]escription"\s*content="*."\s*[/>]+|<meta\s*name="[kK]eywords"\s*content="*."\s*[/>]+|<title>.*</title>)')
 	DESCRIPTION_REGEX = re.compile('(<title\s*>.*</title\s*>)')
 	REPLACE_REGEX     = re.compile('<title\s*>|</title\s*>')
-	SENTENCE_REGEX    = re.compile('>[^\x00<>/:=\-]+</')
-	WORD_REGEX        = re.compile('[^\.\[\],!?/\'"()\s]+')  
+	SENTENCE_REGEX    = re.compile('(?!script|title)([^><]*)>(?u)\w+</')
+	WORD_REGEX        = re.compile('(?u)\w+')  
 
 	def __init__(self, link, anonimously = False):
 		super(Site, self).__init__()
@@ -64,6 +64,7 @@ class Site(object):
 				self.content      = response.content			
 		
 				try:
+					response.content = unicode(response.content, "UTF-8")
 					self.description = re.findall(Site.DESCRIPTION_REGEX, response.content)
 					self.description = self.description[0] if len(self.description) > 0 else ''
 					self.description = re.sub(Site.REPLACE_REGEX, '', self.description)			
@@ -104,11 +105,12 @@ class Site(object):
 				logging.info('Url: %s loaded succesfully!' % self.link)
 		
 				#handle words
-				sentences = re.findall(Site.SENTENCE_REGEX, response.content)
+				sentences = re.findall(Site.SENTENCE_REGEX, response.content, "UTF-8")
 				words = []
 
 				for sentence in sentences:
-					words.extend(re.findall(Site.WORD_REGEX, sentence[1:-2]))
+					re.sub(r'(.*>|</.*)', sentence, '')
+					words.extend(re.findall(Site.WORD_REGEX, sentence))
 
 				for word in words:
 					if word in self.words.keys():
@@ -223,6 +225,7 @@ class WebSpider(object):
 		logging.info('Starting webspider...')
 		urls = Queue()
 		spiders = []
+		absolute_urls = []
 
 		if 'url' in kwargs:
 			absolute_urls = re.findall(WebSpider.LINK_REGEX, kwargs['url'])	
